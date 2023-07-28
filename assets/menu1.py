@@ -1,4 +1,5 @@
 import pygame
+import os
 
 pygame.init()
 
@@ -8,59 +9,64 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("menu")
+pygame.display.set_caption("MegaFighters")
+if "/" in os.getcwd():
+    seperator = "/"
+else:
+    seperator = "\\"
+
+
+def path(path2):
+    return f"{os.getcwd()}{seperator}{f'{seperator}'.join(path2.split('|'))}"
+
 
 # load background image
-
-bg_image = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\background.png").convert_alpha()
+bg_image = pygame.image.load(path("menu|background.png")).convert_alpha()
 
 # load buttons
 
-start = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\start.png").convert_alpha()
-volume = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\volume.png").convert_alpha()
-quits = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\quits.png").convert_alpha()
-yes = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\yes_button.png").convert_alpha()
-no = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\no_button.png").convert_alpha()
+start = pygame.image.load(path("menu|start.png")).convert_alpha()
+volume = pygame.image.load(path("menu|volume.png")).convert_alpha()
+quits = pygame.image.load(path("menu|quits.png")).convert_alpha()
+yes = pygame.image.load(path("menu|yes_button.png")).convert_alpha()
+no = pygame.image.load(path("menu|no_button.png")).convert_alpha()
+
 
 # function for drawing background
 
 def draw_bg():
     scaled_bg = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     screen.blit(scaled_bg, (0, 0))
-    
+
+
 # button class
 
-class Button():
+class Button:
     def __init__(self, x, y, image, scale):
         width = image.get_width()
         height = image.get_height()
         self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        self.clicked = False
 
     def buttons(self):
-        
+
         action = False
 
         # get mouse position
 
         pos = pygame.mouse.get_pos()
-        
+
         # check mouseover and clicked conditions
 
-        if self.rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
-                self.clicked = True
-                action = True
-
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.clicked = False
+        if pygame.mouse.get_pressed()[0] and self.rect.collidepoint(pos[0], pos[1]):
+            action = True
 
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
         return action
-    
+
+
 # create buttons
 
 start_button = Button(475, 200, start, 4)
@@ -71,44 +77,56 @@ no_button = Button(800, 350, no, 2)
 
 # game loop
 
-run = True
-while run:
+if __name__ == '__main__':
+    run = True
+    map_ = None
+    while run:
 
-    # draw background
+        if map_ is None:
 
-    draw_bg()
+            # draw background
 
-    # add music
+            draw_bg()
 
-    if yes_button.buttons():
+            # add music
 
-        pygame.mixer.music.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\Assets\\menu\\music.mp3")
-        pygame.mixer.music.set_volume(0.3)
-        pygame.mixer.music.play(-1)
-        
-    if no_button.buttons():
-        pygame.mixer.music.stop()
+            if yes_button.buttons():
+                pygame.mixer.music.load(path("menu|music.mp3"))
+                pygame.mixer.music.set_volume(0.3)
+                pygame.mixer.music.play(-1)
 
-    # draw buttons
+            if no_button.buttons():
+                pygame.mixer.music.stop()
 
-    if start_button.buttons():
-        import selection_map
+            # draw buttons
 
-    volume_button.buttons()
+            if start_button.buttons():
+                import selection_map
+                run2 = True
+                while map_ is None and run2:
+                    map_ = selection_map.draw_map_selection()
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            run2 = False
+                    pygame.display.flip()
+                if not run2:
+                    run = False
 
-    if quit_button.buttons():
-        run = False
+            volume_button.buttons()
 
-    # event handler
+            if quit_button.buttons():
+                run = False
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+        # event handler
 
-    # update display
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
 
-    pygame.display.update()
-    
-# exit pygame
+        # update display
 
-pygame.quit()
+        pygame.display.flip()
+
+    # exit pygame
+
+    pygame.quit()

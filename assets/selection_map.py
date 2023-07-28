@@ -1,4 +1,5 @@
 import pygame
+from menu1 import path
 
 pygame.init()
 
@@ -8,17 +9,16 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("selection_map")
 
 # load background image
 
-bg_image = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\assets\\selection\\gui\\map_select.png").convert_alpha()
+bg_image = pygame.image.load(path("selection|gui|map_select.png")).convert_alpha()
 
 # load buttons
 
-cave = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\assets\\selection\\maps\\cave.png").convert_alpha()
-forest = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\assets\\selection\\maps\\forest.png").convert_alpha()
-outside = pygame.image.load("C:\\Users\\Abhinab\\.vscode\\MegaFighters\\assets\\selection\\maps\\outside.png").convert_alpha()
+cave = pygame.image.load(path("selection|maps|cave.png")).convert_alpha()
+forest = pygame.image.load(path("selection|maps|forest.png")).convert_alpha()
+outside = pygame.image.load(path("selection|maps|outside.png")).convert_alpha()
 
 # function for drawing background
 
@@ -28,7 +28,7 @@ def draw_bg():
     
 # button class
 
-class Button():
+class Button:
     def __init__(self, x, y, image, scale):
         width = image.get_width()
         height = image.get_height()
@@ -47,29 +47,23 @@ class Button():
         
         # check mouseover and clicked conditions
 
-        if self.rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
-                self.clicked = True
-                action = True
-
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.clicked = False
+        if pygame.mouse.get_pressed()[0] and not self.clicked and self.rect.collidepoint(pos[0], pos[1]):
+            self.clicked = True
+            action = True
 
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
         return action
-    
-# create buttons
 
-cave_pic = Button(90, 162, cave, 1)
+
+# create buttons
+cave_scaled = pygame.transform.scale(cave, (456, 236))
+cave_pic = Button(90, 162, cave_scaled, 1)
 forest_pic = Button(660, 162, forest, 1)
 outside_pic = Button(370, 480, outside, 1)
 
-# game loop
 
-run = True
-while run:
-
+def draw_map_selection():
     # draw background
 
     draw_bg()
@@ -78,23 +72,9 @@ while run:
 
     if cave_pic.buttons():
         import smash_cave
-        
+
     if forest_pic.buttons():
         import smash_forest
-        
+
     if outside_pic.buttons():
         import smash_outside
-        
-   # event handler
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
-    # update display
-
-    pygame.display.update()
-    
-# exit pygame
-
-pygame.quit()
